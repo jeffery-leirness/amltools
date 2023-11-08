@@ -60,7 +60,7 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
   # use MIT + U.S. Department of Commerce license with project
   usethis::use_mit_license()
   license_txt <- c(
-    "Software code created by U.S. Government employees is not subject to copyright in the United States (17 U.S.C. \u00a7105).",
+    "Software code created by U.S. Government employees is not subject to copyright in the United States (17 U.S.C. \u00a7105). ",
     "The United States/Department of Commerce reserve all rights to seek and obtain copyright protection in countries ",
     "other than the United States for Software authored in its entirety by the Department of Commerce. To this end, the ",
     "Department of Commerce hereby grants to Recipient a royalty-free, nonexclusive license to use, copy, and create ",
@@ -81,7 +81,7 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
     "",
     "## License",
     "",
-    license_txt
+    paste(license_txt, collapse = "")
   )
   usethis::write_over("README.md", readme_txt)
 
