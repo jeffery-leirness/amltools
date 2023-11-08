@@ -1,23 +1,45 @@
 #' Create a project for Azure Machine Learning Studio
 #'
-#' @param path The path for the project directory. If it exists, it is used. If it does not exist, it is created, provided that the parent path exists. This value is passed the `path` argument of `usethis::create_project()`.
-#' @param use_renv Whether or not to initialize the project to use the [renv](https://rstudio.github.io/renv/index.html) package. If `TRUE`, the `renv.lock` file will be created within the project at `env/renv.lock` to ensure any relevant Dockerfiles within the `env` directory have access.
-#' @param use_python Whether or not to initialize [renv](https://rstudio.github.io/renv/index.html) python integration. This only happens if `use_renv` is also `TRUE`.
-#' @param use_targets Whether or not to initialize the project to use the [targets](https://docs.ropensci.org/targets/) package.
-#' @param use_git Whether or not to initialize a Git repository. If `TRUE`, calls `usethis::use_git()`.
-#' @param use_github Whether or not to connect the Git repository with GitHub. If `TRUE` and `use_git` is also `TRUE`, calls `usethis::use_github()`.
-#' @param github_private Whether or not the GitHub repository should be private. This value is passed to the `private` argument of `usethis::use_github()`. This argument is only evaluated if both `use_git` and `use_github` are `TRUE`.
-#' @param r_version Declare a specific version of R to use for [renv](https://rstudio.github.io/renv/index.html) integration and/or Dockerfile creation. If `NULL`, this will be set to the R version of the user's session.
-#' @param py_version Declare a specific version of Python to be associated with [renv](https://rstudio.github.io/renv/index.html). This argument is only evaluated if both `use_renv` and `use_python` are `TRUE`.
-#' @param dockerfile Whether or not to create a generic Dockerfile within the project at `env/Dockerfile` for use when submitting R jobs to Azure Machine Learning Studio compute clusters. If `use_rev` is `TRUE`, the Dockerfile will include code to install [renv](https://rstudio.github.io/renv/index.html) and restore packages from the `renv.lock` file.
+#' @param path The path for the project directory. If it exists, it is used.
+#' If it does not exist, it is created, provided that the parent path exists.
+#' This value is passed the `path` argument of `usethis::create_project()`.
+#' @param use_renv Whether or not to initialize the project to use the [renv]
+#' (https://rstudio.github.io/renv/index.html) package. If `TRUE`, the
+#' `renv.lock` file will be created within the project at `env/renv.lock` to
+#' ensure any relevant Dockerfiles within the `env` directory have access.
+#' @param use_python Whether or not to initialize [renv]
+#' (https://rstudio.github.io/renv/index.html) python integration. This only
+#' happens if `use_renv` is also `TRUE`.
+#' @param use_targets Whether or not to initialize the project to use the
+#' [targets](https://docs.ropensci.org/targets/) package.
+#' @param use_git Whether or not to initialize a Git repository. If `TRUE`,
+#' calls `usethis::use_git()`.
+#' @param use_github Whether or not to connect the Git repository with GitHub.
+#' If `TRUE` and `use_git` is also `TRUE`, calls `usethis::use_github()`.
+#' @param github_private Whether or not the GitHub repository should be private.
+#' This value is passed to the `private` argument of `usethis::use_github()`.
+#' This argument is only evaluated if both `use_git` and `use_github` are `TRUE`.
+#' @param r_version Declare a specific version of R to use for [renv]
+#' (https://rstudio.github.io/renv/index.html) integration and/or Dockerfile
+#' creation. If `NULL`, this will be set to the R version of the user's session.
+#' @param py_version Declare a specific version of Python to be associated with
+#' [renv](https://rstudio.github.io/renv/index.html). This argument is only
+#' evaluated if both `use_renv` and `use_python` are `TRUE`.
+#' @param dockerfile Whether or not to create a generic Dockerfile within the
+#' project at `env/Dockerfile` for use when submitting R jobs to Azure Machine
+#' Learning Studio compute clusters. If `use_rev` is `TRUE`, the Dockerfile will
+#' include code to install [renv](https://rstudio.github.io/renv/index.html) and
+#' restore packages from the `renv.lock` file.
 #'
 #' @return
 #' @export
 #'
 #' @examples
-create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE, use_targets = TRUE, use_git = TRUE, use_github = FALSE, github_private = TRUE, r_version = NULL, py_version = NULL, dockerfile = TRUE) {
-
-  # stopifnot(!dir.exists(path))
+create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
+                               use_targets = TRUE, use_git = TRUE,
+                               use_github = FALSE, github_private = TRUE,
+                               r_version = NULL, py_version = NULL,
+                               dockerfile = TRUE) {
 
   # determine r version to use for renv and dockerfile
   if (any(use_renv, dockerfile)) {
@@ -47,11 +69,11 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE, use_tar
   # add generic README.md file to project
   # include U.S. Department of Commerce disclaimer and license
   readme_txt <- c(
-    "### Disclaimer",
+    "## Disclaimer",
     "",
     "This repository is a scientific product and is not official communication of the National Oceanic and Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the Department of Commerce or Department of Commerce bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by the Department of Commerce. The Department of Commerce seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by DOC or the United States Government.",
     "",
-    "### License",
+    "## License",
     "",
     license_txt
   )
