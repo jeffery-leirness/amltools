@@ -14,3 +14,5 @@ Imports:
     renv,
     targets,
     usethis
+URL: https://github.com/jeffery-leirness/amltools
+BugReports: https://github.com/jeffery-leirness/amltools/issues
