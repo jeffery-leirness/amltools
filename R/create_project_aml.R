@@ -139,7 +139,7 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
     usethis::write_over(".Renviron", renviron_txt)
 
     # create .amlignore file
-    # this are necessary when using renv and submitting jobs to a compute
+    # this is necessary when using renv and submitting jobs to a compute
     amlignore_txt <- c(
       ".ipynb_aml_checkpoints/",
       "*.amltmp",
