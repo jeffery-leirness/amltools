@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^amltools\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
