@@ -36,12 +36,12 @@ customize_rstudio_docker <- function(path_users = "/home/azureuser/cloudfiles/co
   usethis::git_default_branch_configure()
   usethis::use_git_config("user", safe.directory = "*",
                           credential.helper = "cache --timeout=7776000")
-  usethis::use_git_config("user", secrets.patterns = "password\s*=\s*.+",
-                          secrets.patterns = "Password\s*=\s*.+",
-                          secrets.patterns = "PASSWORD\s*=\s*.+",
-                          secrets.patterns = "user\s*=\s*.+",
-                          secrets.patterns = "User\s*=\s*.+",
-                          secrets.patterns = "USER\s*=\s*.+")
+  # usethis::use_git_config("user", secrets.patterns = "password\s*=\s*.+",
+  #                         secrets.patterns = "Password\s*=\s*.+",
+  #                         secrets.patterns = "PASSWORD\s*=\s*.+",
+  #                         secrets.patterns = "user\s*=\s*.+",
+  #                         secrets.patterns = "User\s*=\s*.+",
+  #                         secrets.patterns = "USER\s*=\s*.+")
 
   # # copy custom git configuration file to docker container ------------------
   # fs::file_copy(file.path(path_users, ".gitconfig"),
