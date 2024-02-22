@@ -155,8 +155,10 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
     # activate renv python integration
     # if (use_python) {
     #   renv::install("reticulate", prompt = FALSE)
+    #   reticulate::install_python()
     #   renv::use_python(type = "virtualenv")
-    #   reticulate::py_install(packages = c("azure-ai-ml", "azure-identity", "azureml", "azureml-core", "azureml-fsspec"))
+    #   reticulate::py_install(packages = c("azure-ai-ml", "azure-identity", "azureml", "azureml-core", "azureml-fsspec",
+    #                                       "azure-storage-blob", "mltable"))
     #   renv::snapshot(prompt = FALSE)
     # }
   }
