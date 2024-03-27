@@ -33,6 +33,9 @@ customize_rstudio_docker <- function(username,
                                    editor_theme = "Cobalt",
                                    restore_last_project = FALSE)
 
+  # install azure cli
+  system("curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash")
+
   # configure git ---------------------------------------------------------
   usethis::use_git_config("user", user.name = git_name, user.email = git_email,
                           core.editor = "code --wait")
