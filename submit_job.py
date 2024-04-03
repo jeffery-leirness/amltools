@@ -1,3 +1,7 @@
+'''
+author: Jeff Leirness
+email: jeffery.leirness@noaa.gov
+'''
 def submit_job(code = ".", rscript_command = "", dir_out = None, dir_env = None, compute = "", experiment_name = "", display_name = "", description = ""
 ):
   
