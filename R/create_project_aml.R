@@ -132,9 +132,22 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
     Sys.setenv(
       RENV_PATHS_LOCKFILE = "env/renv.lock"
     )
+    # if also using the targets package, disable initialization checks to avoid slowdown issues when running targets (see https://books.ropensci.org/targets/packages.html)
+    if (use_targets) {
+      Sys.setenv(
+        RENV_CONFIG_SANDBOX_ENABLED = FALSE,
+        RENV_CONFIG_SYNCHRONIZED_CHECK = FALSE
+      )
+    }
 
     # write renv settings to .Renviron file so they persist for all sessions
-    renviron_txt <- Sys.getenv("RENV_PATHS_LOCKFILE", names = TRUE)
+    if (use_targets) {
+      renviron_txt <- Sys.getenv(c("RENV_PATHS_LOCKFILE",
+                                   "RENV_CONFIG_SANDBOX_ENABLED",
+                                   "RENV_CONFIG_SYNCHRONIZED_CHECK"), names = TRUE)
+    } else {
+      renviron_txt <- Sys.getenv("RENV_PATHS_LOCKFILE", names = TRUE)
+    }
     renviron_txt <- paste(names(renviron_txt), renviron_txt, sep = " = ", collapse = "\n")
     usethis::write_over(".Renviron", renviron_txt)
 
