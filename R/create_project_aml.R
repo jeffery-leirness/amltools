@@ -2,7 +2,7 @@
 #'
 #' @param path The path for the project directory. If it exists, it is used.
 #' If it does not exist, it is created, provided that the parent path exists.
-#' This value is passed the `path` argument of `usethis::create_project()`.
+#' This value is passed to the `path` argument of `usethis::create_project()`.
 #' @param use_renv Whether or not to initialize the project to use the [renv]
 #' (https://rstudio.github.io/renv/index.html) package. If `TRUE`, the
 #' `renv.lock` file will be created within the project at `env/renv.lock` to
