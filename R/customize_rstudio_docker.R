@@ -68,4 +68,13 @@ customize_rstudio_docker <- function(username,
   # set git credentials
   gitcreds::gitcreds_set()
 
+  # alternatively, use ssh for github connection
+  # cmd <- paste0("ssh-keygen -t ed25519 -C '", username, "'")
+  # system(cmd)
+  # system("ssh-add ~/.ssh/id_ed25519")
+  # next:
+  # 1. copy public key (from file ~/.ssh/id_ed25519.pub)
+  # 2. register public key with github
+  # 3. ensure remote repository is set to use ssh (`git remote set-url origin <ssh command to clone repository>`)
+
 }
