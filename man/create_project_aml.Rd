@@ -20,7 +20,7 @@ create_project_aml(
 \arguments{
 \item{path}{The path for the project directory. If it exists, it is used.
 If it does not exist, it is created, provided that the parent path exists.
-This value is passed the \code{path} argument of \code{usethis::create_project()}.}
+This value is passed to the \code{path} argument of \code{usethis::create_project()}.}
 
 \item{use_renv}{Whether or not to initialize the project to use the \link{renv}
 (https://rstudio.github.io/renv/index.html) package. If \code{TRUE}, the
