@@ -2,17 +2,25 @@ Package: amltools
 Title: Automate Project Setup for Azure Machine Learning Studio
 Version: 0.0.0.9000
 Authors@R: 
-    person("Jeffery", "Leirness", , "jeffery.leirness@noaa.gov", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-3604-2790"))
+    person(
+      given = "Jeffery", 
+      family = "Leirness", 
+      email = "jeffery.leirness@noaa.gov", 
+      role = c("aut", "cre"), 
+      comment = c(ORCID = "0000-0003-3604-2790")
+    )
 Description: Automate project setup tasks for the Azure Machine Learning Studio 
     platform.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
+    fs,
+    gitcreds,
     renv,
+    rstudio.prefs,
     targets,
     usethis
-URL: https://github.com/jeffery-leirness/amltools
-BugReports: https://github.com/jeffery-leirness/amltools/issues
+URL: https://github.com/jeffery-leirness-noaa/amltools
+BugReports: https://github.com/jeffery-leirness-noaa/amltools/issues
