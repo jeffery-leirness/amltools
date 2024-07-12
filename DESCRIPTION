@@ -5,7 +5,7 @@ Authors@R:
     person("Jeffery", "Leirness", , "jeffery.leirness@noaa.gov", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3604-2790"))
 Description: Automate project setup tasks for the Azure Machine Learning Studio 
-    platform that are otherwise performed manually.
+    platform.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
