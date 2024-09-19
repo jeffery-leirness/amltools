@@ -49,21 +49,21 @@ customize_rstudio_docker <- function(username,
   #                         secrets.patterns = "User\s*=\s*.+",
   #                         secrets.patterns = "USER\s*=\s*.+")
 
-  # install git secrets -----------------------------------------------------
-  if (!fs::dir_exists(fs::path(.path_user, "git-secrets"))) {
-    usethis::create_from_github("awslabs/git-secrets", destdir = .path_user,
-                                fork = FALSE, rstudio = FALSE, open = FALSE)
-  }
-  cmd <- paste("sudo make -C", fs::path(.path_user, "git-secrets"), "install")
-  system(cmd)
-
-  # configure git secrets ---------------------------------------------------
-  system("git secrets --register-aws --global")
-  system("git secrets --install ~/.git-templates/git-secrets")
-  system("git config --global init.templateDir ~/.git-templates/git-secrets")
-
-  # delete git-secrets directory
-  fs::dir_delete(file.path(.path_user, "git-secrets"))
+  # # install git secrets -----------------------------------------------------
+  # if (!fs::dir_exists(fs::path(.path_user, "git-secrets"))) {
+  #   usethis::create_from_github("awslabs/git-secrets", destdir = .path_user,
+  #                               fork = FALSE, rstudio = FALSE, open = FALSE)
+  # }
+  # cmd <- paste("sudo make -C", fs::path(.path_user, "git-secrets"), "install")
+  # system(cmd)
+  #
+  # # configure git secrets ---------------------------------------------------
+  # system("git secrets --register-aws --global")
+  # system("git secrets --install ~/.git-templates/git-secrets")
+  # system("git config --global init.templateDir ~/.git-templates/git-secrets")
+  #
+  # # delete git-secrets directory
+  # fs::dir_delete(file.path(.path_user, "git-secrets"))
 
   # set git credentials
   gitcreds::gitcreds_set()
