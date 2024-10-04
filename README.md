@@ -12,7 +12,7 @@ You can install the development version of amltools from [GitHub](https://github
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("jeffery-leirness/amltools")
+devtools::install_github("jeffery-leirness-noaa/amltools")
 ```
 
 ## Disclaimer
