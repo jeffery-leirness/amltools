@@ -11,8 +11,8 @@ The goal of amltools is to automate project setup tasks for the Azure Machine Le
 You can install the development version of amltools from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("jeffery-leirness-noaa/amltools")
+# install.packages("pak")
+pak::pkg_install("jeffery-leirness/amltools")
 ```
 
 ## Disclaimer

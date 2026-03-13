@@ -14,7 +14,7 @@ Description: Automate project setup tasks for the Azure Machine Learning Studio
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     AzureAuth,
     AzureRMR,
@@ -22,6 +22,8 @@ Imports:
     dplyr,
     fs,
     gitcreds,
+    jsonlite,
+    processx,
     purrr,
     renv,
     rstudio.prefs,
@@ -29,5 +31,5 @@ Imports:
     targets,
     tibble,
     usethis
-URL: https://github.com/jeffery-leirness-noaa/amltools
-BugReports: https://github.com/jeffery-leirness-noaa/amltools/issues
+URL: https://github.com/jeffery-leirness/amltools
+BugReports: https://github.com/jeffery-leirness/amltools/issues

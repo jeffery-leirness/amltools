@@ -14,8 +14,6 @@
 #'   as a fallback. Passed to [AzureRMR::get_azure_token()].
 #'
 #' @return An Azure token object.
-#'
-#' @noRd
 azure_auth_token <- function(
   resource = "https://storage.azure.com",
   tenant = "common",

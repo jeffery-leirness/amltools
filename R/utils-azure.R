@@ -24,8 +24,6 @@
 #'
 #' @return A list of storage properties, or `NULL` if the blob does not exist
 #'   or if a 400 HTTP error occurs.
-#'
-#' @noRd
 # TODO: implement "version" optional argument
 azure_head <- function(
   key,

@@ -1,14 +1,3 @@
-# mount_path <- fs::path("~", "blobfuse_mount") |>
-#   fs::path_expand()
-# config_path <- fs::path("config.yaml")
-# cache_path <- fs::path("/mnt/blobfuse_cache")
-
-# Install blobfuse2
-# sudo wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
-# sudo dpkg -i packages-microsoft-prod.deb
-# sudo apt-get update
-# sudo apt-get install blobfuse2
-
 #' Get an Azure Storage account key
 #'
 #' Retrieves the primary access key for an Azure Storage account using the
@@ -22,11 +11,8 @@
 #'
 #' @return A character string containing the primary storage account access key.
 #'
-#' @noRd
-get_azure_key <- function(
-  resource_group = "nccos-rg-hmt-prod-e2",
-  account_name = "nccosmlmsestor1"
-) {
+#' @export
+get_azure_key <- function(resource_group, account_name) {
   stdout <- processx::run(
     "az",
     args = c(
@@ -66,16 +52,13 @@ get_azure_key <- function(
 #' @return Called for its side effects; returns invisibly. Prints a message
 #'   indicating whether the mount was successful or already active.
 #'
-#' @noRd
+#' @export
 mount_blob_storage <- function(
-  mount_path = fs::path("/mnt/blobfuse_mount"),
-  cache_path = fs::path("/mnt/blobfuse_cache"),
-  config_path = fs::path("config.yaml"),
-  resource_group = "nccos-rg-hmt-prod-e2",
-  account_name = "nccosmlmsestor1"
-  # keyring = "azure_keys",
-  # service = "blobfuse_key",
-  # username = "azure_storage"
+  mount_path = "/mnt/blobfuse_mount",
+  cache_path = "/mnt/blobfuse_cache",
+  config_path = "config.yaml",
+  resource_group,
+  account_name
 ) {
   if (!fs::dir_exists(mount_path)) {
     is_mounted <- FALSE
@@ -93,25 +76,10 @@ mount_blob_storage <- function(
   }
   if (!is_mounted) {
     message("Mounting Azure Blob Storage...")
-
-    # # 1. Prompt for the main password
-    # main_pass <- askpass::askpass("Enter Keyring Main Password:")
-
-    # # 2. Access the file backend and unlock it using the main password
-    # kb <- keyring::backend_file$new()
-    # kb$keyring_unlock(keyring, password = main_pass)
-
-    # # 3. Retrieve the Azure Storage key from the unlocked keyring
-    # azure_key <- kb$get(service, username = username, keyring = keyring)
-
-    # 4. Create the cache directory if it doens't already exist
     if (!fs::dir_exists(cache_path)) {
       processx::run("sudo", args = c("mkdir", cache_path))
       processx::run("sudo", args = c("chown", "azureuser", cache_path))
     }
-
-    # 5. Inject to the environment and mount
-    # Sys.setenv(AZURE_STORAGE_ACCESS_KEY = azure_key)
     Sys.setenv(
       AZURE_STORAGE_ACCESS_KEY = get_azure_key(resource_group, account_name)
     )
@@ -126,12 +94,7 @@ mount_blob_storage <- function(
         cache_path
       )
     )
-
-    # 6. Lock the keyring and clean up
-    # kb$keyring_lock("azure_keys")
     Sys.unsetenv("AZURE_STORAGE_ACCESS_KEY")
-    # rm(azure_key, main_pass)
-
     message("Mount successful.")
   } else {
     message("Azure Blob Storage is already mounted.")
@@ -147,8 +110,6 @@ mount_blob_storage <- function(
 #'
 #' @return A named list of resolved directory paths, where mounted paths have
 #'   been replaced with their corresponding symlink paths.
-#'
-#' @noRd
 set_targets_symlinks <- function() {
   # 6. Set up directory paths using symlinks for accessing data and saving outputs
   #   - This is necessary to ensure targets are not flagged as outdated due to changes in absolute file paths across compute nodes
