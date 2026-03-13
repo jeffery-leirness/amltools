@@ -31,19 +31,33 @@
 #' include code to install [renv](https://rstudio.github.io/renv/index.html) and
 #' restore packages from the `renv.lock` file.
 #'
-#' @return
+#' @return Called for its side effects. Activates the newly created project and
+#'   opens a new RStudio session. Returns the project path invisibly.
 #' @export
 #'
 #' @examples
-create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
-                               use_targets = TRUE, use_git = TRUE,
-                               use_github = FALSE, github_private = TRUE,
-                               r_version = NULL, py_version = NULL,
-                               dockerfile = TRUE) {
-
+#' \dontrun{
+#' create_project_aml("my-aml-project")
+#' }
+create_project_aml <- function(
+  path,
+  use_renv = TRUE,
+  use_python = TRUE,
+  use_targets = TRUE,
+  use_git = TRUE,
+  use_github = FALSE,
+  github_private = TRUE,
+  r_version = NULL,
+  py_version = NULL,
+  dockerfile = TRUE
+) {
   # determine r version to use for renv and dockerfile
   if (any(use_renv, dockerfile)) {
-    rver <- if (!is.null(r_version)) r_version else paste(R.version$major, R.version$minor, sep = ".")
+    rver <- if (!is.null(r_version)) {
+      r_version
+    } else {
+      paste(R.version$major, R.version$minor, sep = ".")
+    }
   }
 
   # create and activate R project
@@ -126,7 +140,6 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
 
   # renv setup ------------------------------------------------------------
   if (use_renv) {
-
     # renv settings:
     # change the lockfile location (must be in the same directory as the Dockerfile)
     Sys.setenv(
@@ -142,13 +155,23 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
 
     # write renv settings to .Renviron file so they persist for all sessions
     if (use_targets) {
-      renviron_txt <- Sys.getenv(c("RENV_PATHS_LOCKFILE",
-                                   "RENV_CONFIG_SANDBOX_ENABLED",
-                                   "RENV_CONFIG_SYNCHRONIZED_CHECK"), names = TRUE)
+      renviron_txt <- Sys.getenv(
+        c(
+          "RENV_PATHS_LOCKFILE",
+          "RENV_CONFIG_SANDBOX_ENABLED",
+          "RENV_CONFIG_SYNCHRONIZED_CHECK"
+        ),
+        names = TRUE
+      )
     } else {
       renviron_txt <- Sys.getenv("RENV_PATHS_LOCKFILE", names = TRUE)
     }
-    renviron_txt <- paste(names(renviron_txt), renviron_txt, sep = " = ", collapse = "\n")
+    renviron_txt <- paste(
+      names(renviron_txt),
+      renviron_txt,
+      sep = " = ",
+      collapse = "\n"
+    )
     usethis::write_over(".Renviron", renviron_txt)
 
     # create .amlignore file
@@ -178,7 +201,6 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
 
   # initialize git repository & add custom lines to .gitignore file
   if (use_git) {
-
     # initialize git repository
     usethis::use_git()
 
@@ -188,7 +210,10 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
       usethis::use_git_ignore(ignores = "_targets/")
     }
     usethis::use_git_ignore(ignores = c("*", "!.gitignore"), directory = "data")
-    usethis::use_git_ignore(ignores = c("*", "!.gitignore"), directory = "data-raw")
+    usethis::use_git_ignore(
+      ignores = c("*", "!.gitignore"),
+      directory = "data-raw"
+    )
     usethis::use_git()
 
     # initialize `git-secrets`
@@ -200,15 +225,11 @@ create_project_aml <- function(path, use_renv = TRUE, use_python = TRUE,
 
     # optionally connect to github
     if (use_github) {
-
       # create github repository and configure as git remote
       usethis::use_github(private = github_private)
-
     }
-
   }
 
   # activate the project and open new RStudio session if using
   usethis::proj_activate(usethis::proj_get())
-
 }

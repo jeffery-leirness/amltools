@@ -1,47 +1,73 @@
-#' Customize rstudio docker container running in Azure Machine Learning Studio
+#' Customize RStudio docker container running in Azure Machine Learning Studio
 #'
-#' @param path_users The path for the Users directory on Azure Machine Learning
-#' Studio.
-#' @param username User-specific username for the Azure Machine Learning Studio \
-#' environment. This should match the user-specific directory nested directly
-#' under `path_users`.
-#' @param use_git Whether or not to apply specific Git settings. If `TRUE`,
-#' copies user-specific `.gitconfig` file if found, installs git secrets, and
-#' sets git credentials.
+#' Applies a set of standard configurations to an RStudio Server docker
+#' container running in Azure Machine Learning Studio, including RStudio
+#' preferences, Azure CLI installation, and Git settings.
 #'
-#' @return
+#' @param username A character string specifying the user-specific username for
+#'   the Azure Machine Learning Studio environment. This should match the
+#'   user-specific directory nested directly under `path_users`.
+#' @param path_users A character string specifying the path for the Users
+#'   directory on Azure Machine Learning Studio.
+#' @param git_setup A logical value indicating whether to apply Git settings.
+#'   If `TRUE`, configures the Git user name, email, default branch, and
+#'   credential helper, and prompts to set Git credentials.
+#' @param git_name A character string specifying the Git user name to configure.
+#' @param git_email A character string specifying the Git user email to
+#'   configure.
+#'
+#' @return Called for its side effects; returns invisibly.
 #' @export
 #'
 #' @examples
-customize_rstudio_docker <- function(username,
-                                     path_users = "~/cloudfiles/code/Users",
-                                     git_setup = TRUE, git_name, git_email) {
-
+#' \dontrun{
+#' customize_rstudio_docker(
+#'   username = "jane.doe",
+#'   git_name = "Jane Doe",
+#'   git_email = "jane.doe@noaa.gov"
+#' )
+#' }
+customize_rstudio_docker <- function(
+  username,
+  path_users = "~/cloudfiles/code/Users",
+  git_setup = TRUE,
+  git_name,
+  git_email
+) {
   # set user-specific directory path
   .path_user <- fs::path(path_users, username)
 
   # set specific rstudio preferences --------------------------------------
-  rstudio.prefs::use_rstudio_prefs(save_workspace = "never",
-                                   load_workspace = FALSE,
-                                   initial_working_directory = .path_user,
-                                   default_open_project_location = .path_user,
-                                   always_save_history = FALSE,
-                                   insert_native_pipe_operator = TRUE,
-                                   soft_wrap_r_files = TRUE,
-                                   rainbow_parentheses = TRUE,
-                                   posix_terminal_shell = "bash",
-                                   editor_theme = "Cobalt",
-                                   restore_last_project = FALSE)
+  rstudio.prefs::use_rstudio_prefs(
+    save_workspace = "never",
+    load_workspace = FALSE,
+    initial_working_directory = .path_user,
+    default_open_project_location = .path_user,
+    always_save_history = FALSE,
+    insert_native_pipe_operator = TRUE,
+    soft_wrap_r_files = TRUE,
+    rainbow_parentheses = TRUE,
+    posix_terminal_shell = "bash",
+    editor_theme = "Cobalt",
+    restore_last_project = FALSE
+  )
 
   # install azure cli
   system("curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash")
 
   # configure git ---------------------------------------------------------
-  usethis::use_git_config("user", user.name = git_name, user.email = git_email,
-                          core.editor = "code --wait")
+  usethis::use_git_config(
+    "user",
+    user.name = git_name,
+    user.email = git_email,
+    core.editor = "code --wait"
+  )
   usethis::git_default_branch_configure()
-  usethis::use_git_config("user", safe.directory = "*",
-                          credential.helper = "cache --timeout=7776000")
+  usethis::use_git_config(
+    "user",
+    safe.directory = "*",
+    credential.helper = "cache --timeout=7776000"
+  )
   # usethis::use_git_config("user", secrets.patterns = "password\s*=\s*.+",
   #                         secrets.patterns = "Password\s*=\s*.+",
   #                         secrets.patterns = "PASSWORD\s*=\s*.+",
@@ -76,5 +102,4 @@ customize_rstudio_docker <- function(username,
   # 1. copy public key (from file ~/.ssh/id_ed25519.pub)
   # 2. register public key with github
   # 3. ensure remote repository is set to use ssh (`git remote set-url origin <ssh command to clone repository>`)
-
 }
