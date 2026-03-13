@@ -62,7 +62,6 @@ mount_blob_storage <- function(
 ) {
   if (!fs::dir_exists(mount_path)) {
     is_mounted <- FALSE
-    fs::dir_create(mount_path)
     processx::run("sudo", args = c("mkdir", mount_path))
     processx::run("sudo", args = c("chown", "azureuser", mount_path))
   } else {
