@@ -5,11 +5,10 @@
 \title{Mount Azure Blob Storage using blobfuse2}
 \usage{
 mount_blob_storage(
-  mount_path = "/mnt/blobfuse_mount",
-  cache_path = "/mnt/blobfuse_cache",
+  mount_path = fs::path("/mnt/blobfuse_mount", container_name),
+  cache_path = fs::path("/mnt/blobfuse_cache", container_name),
   config_path = "config.yaml",
-  resource_group,
-  account_name
+  container_name
 )
 }
 \arguments{
@@ -22,10 +21,7 @@ local directory blobfuse2 uses as a cache.}
 \item{config_path}{A \code{fs_path} object or character string specifying the
 path to the blobfuse2 configuration YAML file.}
 
-\item{resource_group}{A character string specifying the Azure resource group
-name containing the storage account.}
-
-\item{account_name}{A character string specifying the Azure Storage account
+\item{container_name}{A character string specifying the Azure Storage container
 name.}
 }
 \value{

@@ -44,9 +44,7 @@ get_azure_key <- function(resource_group, account_name) {
 #'   local directory blobfuse2 uses as a cache.
 #' @param config_path A `fs_path` object or character string specifying the
 #'   path to the blobfuse2 configuration YAML file.
-#' @param resource_group A character string specifying the Azure resource group
-#'   name containing the storage account.
-#' @param account_name A character string specifying the Azure Storage account
+#' @param container_name A character string specifying the Azure Storage container
 #'   name.
 #'
 #' @return Called for its side effects; returns invisibly. Prints a message
@@ -54,14 +52,20 @@ get_azure_key <- function(resource_group, account_name) {
 #'
 #' @export
 mount_blob_storage <- function(
-  mount_path = "/mnt/blobfuse_mount",
-  cache_path = "/mnt/blobfuse_cache",
+  mount_path = fs::path("/mnt/blobfuse_mount", container_name),
+  cache_path = fs::path("/mnt/blobfuse_cache", container_name),
   config_path = "config.yaml",
-  resource_group,
-  account_name
+  container_name
 ) {
   if (!fs::dir_exists(mount_path)) {
     is_mounted <- FALSE
+    if (!fs::dir_exists(fs::path_dir(mount_path))) {
+      processx::run("sudo", args = c("mkdir", fs::path_dir(mount_path)))
+      processx::run(
+        "sudo",
+        args = c("chown", "azureuser", fs::path_dir(mount_path))
+      )
+    }
     processx::run("sudo", args = c("mkdir", mount_path))
     processx::run("sudo", args = c("chown", "azureuser", mount_path))
   } else {
@@ -76,12 +80,16 @@ mount_blob_storage <- function(
   if (!is_mounted) {
     message("Mounting Azure Blob Storage...")
     if (!fs::dir_exists(cache_path)) {
+      if (!fs::dir_exists(fs::path_dir(cache_path))) {
+        processx::run("sudo", args = c("mkdir", fs::path_dir(cache_path)))
+        processx::run(
+          "sudo",
+          args = c("chown", "azureuser", fs::path_dir(cache_path))
+        )
+      }
       processx::run("sudo", args = c("mkdir", cache_path))
       processx::run("sudo", args = c("chown", "azureuser", cache_path))
     }
-    Sys.setenv(
-      AZURE_STORAGE_ACCESS_KEY = get_azure_key(resource_group, account_name)
-    )
     processx::run(
       "blobfuse2",
       args = c(
@@ -89,11 +97,12 @@ mount_blob_storage <- function(
         mount_path,
         "--config-file",
         config_path,
+        "--container-name",
+        container_name,
         "--tmp-path",
         cache_path
       )
     )
-    Sys.unsetenv("AZURE_STORAGE_ACCESS_KEY")
     message("Mount successful.")
   } else {
     message("Azure Blob Storage is already mounted.")
