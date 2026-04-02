@@ -1,6 +1,6 @@
 Package: amltools
 Title: Automate Project Setup for Azure Machine Learning Studio
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person(
       given = "Jeffery", 
