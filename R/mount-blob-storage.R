@@ -107,53 +107,60 @@ mount_blob_storage <- function(
   } else {
     message("Azure Blob Storage is already mounted.")
   }
+  mount_path
 }
 
-#' Set up symlinks for targets pipeline storage paths
+#' Set up symlinks for Azure storage paths
 #'
 #' Creates symbolic links in a stable temporary directory to provide consistent
 #' absolute paths for [targets](https://docs.ropensci.org/targets/) pipeline
 #' inputs and outputs. This prevents targets from being flagged as outdated
 #' when absolute file paths change across compute nodes.
 #'
+#' @param source_paths A named list or named character vector of source
+#'   directory paths to link. Names are used as symlink names in `link_dir`.
+#' @param link_dir A path for the directory where symlinks should be created.
+#'
 #' @return A named list of resolved directory paths, where mounted paths have
 #'   been replaced with their corresponding symlink paths.
-set_targets_symlinks <- function() {
-  # 6. Set up directory paths using symlinks for accessing data and saving outputs
-  #   - This is necessary to ensure targets are not flagged as outdated due to changes in absolute file paths across compute nodes
-  opt <- list(
-    dir_workspace = fs::path(
-      mount_path,
-      "UI",
-      "leirness-data",
-      "sampling-images-annotation"
-    ),
-    dir_input = fs::path(
-      mount_path,
-      "UI",
-      "NCCOS-SEA-Branch-MDBC-Project",
-      "data",
-      "MGM",
-      "PHM",
-      "outputs",
-      "predictors"
-    ),
-    dir_output = fs::path("output") |>
-      fs::path_abs()
-  )
-  dir_link <- fs::path("/tmp/static_mount")
-  if (fs::dir_exists(dir_link)) {
-    fs::dir_delete(dir_link)
+#'
+#' @export
+set_symlinks <- function(
+  source_paths,
+  link_dir = fs::path("/tmp/static_mount")
+) {
+  if (!is.list(source_paths) && !is.character(source_paths)) {
+    stop("`source_paths` must be a named list or named character vector.")
   }
-  fs::dir_create(dir_link)
-  if (fs::dir_exists(dir_link)) {
-    opt <- purrr::imodify(opt, \(x, name) {
+
+  source_paths <- as.list(source_paths)
+  if (is.null(names(source_paths)) || any(names(source_paths) == "")) {
+    stop("`source_paths` must be named. Names are used as symlink names.")
+  }
+
+  fs::dir_create(link_dir)
+
+  if (fs::dir_exists(link_dir)) {
+    source_paths <- purrr::imodify(source_paths, \(x, name) {
       if (!is.na(x) && is.character(x) && length(x) == 1 && fs::dir_exists(x)) {
-        fs::link_create(x, new_path = fs::path(dir_link, name))
-        fs::path(dir_link, name)
+        new_path <- fs::path(link_dir, name)
+        if (
+          (fs::file_exists(new_path) || fs::dir_exists(new_path)) &&
+            fs::is_link(new_path)
+        ) {
+          fs::file_delete(new_path)
+        }
+        if (!fs::file_exists(new_path) && !fs::dir_exists(new_path)) {
+          fs::link_create(x, new_path = new_path)
+          fs::path(link_dir, name)
+        } else {
+          x
+        }
       } else {
         x
       }
     })
   }
+
+  source_paths
 }
