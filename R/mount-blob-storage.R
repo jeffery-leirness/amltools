@@ -110,9 +110,9 @@ mount_blob_storage <- function(
   mount_path
 }
 
-#' Set up symlinks for Azure storage paths
+#' Set up symlink for Azure storage paths
 #'
-#' Creates symbolic links in a stable temporary directory to provide consistent
+#' Creates symbolic links in a stable directory to provide consistent
 #' absolute paths for [targets](https://docs.ropensci.org/targets/) pipeline
 #' inputs and outputs. This prevents targets from being flagged as outdated
 #' when absolute file paths change across compute nodes.
@@ -125,7 +125,7 @@ mount_blob_storage <- function(
 #'   been replaced with their corresponding symlink paths.
 #'
 #' @export
-set_symlinks <- function(
+set_symlink <- function(
   source_paths,
   link_dir = fs::path("/tmp/static_mount")
 ) {
