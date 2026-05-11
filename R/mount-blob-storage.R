@@ -144,15 +144,12 @@ set_symlink <- function(
     source_paths <- purrr::imodify(source_paths, \(x, name) {
       if (!is.na(x) && is.character(x) && length(x) == 1 && fs::dir_exists(x)) {
         new_path <- fs::path(link_dir, name)
-        if (
-          (fs::file_exists(new_path) || fs::dir_exists(new_path)) &&
-            fs::is_link(new_path)
-        ) {
-          fs::file_delete(new_path)
+        if (fs::link_exists(new_path)) {
+          fs::link_delete(new_path)
         }
-        if (!fs::file_exists(new_path) && !fs::dir_exists(new_path)) {
+        if (!fs::link_exists(new_path)) {
           fs::link_create(x, new_path = new_path)
-          fs::path(link_dir, name)
+          new_path
         } else {
           x
         }
