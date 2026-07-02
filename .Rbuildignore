@@ -1,5 +1,12 @@
-^renv$
-^renv\.lock$
-^amltools\.Rproj$
+^.*\.Rproj$
 ^\.Rproj\.user$
+^\.git$
+^\.gitignore$
+^tests/testthat/_snaps$
+^\.github$
 ^LICENSE\.md$
+^vignettes/\*\.html$
+^\.vscode$
+^\.vscode/
+^README\.Rmd$
+^README-.*\.png$

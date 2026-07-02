@@ -52,62 +52,34 @@ get_azure_key <- function(resource_group, account_name) {
 #'
 #' @export
 mount_blob_storage <- function(
-  mount_path = fs::path("/mnt/blobfuse_mount", container_name),
-  cache_path = fs::path("/mnt/blobfuse_cache", container_name),
-  config_path = "config.yaml",
+  mount_point = fs::path("/mnt/tmp/blob_mount", container_name),
   container_name
 ) {
-  if (!fs::dir_exists(mount_path)) {
-    is_mounted <- FALSE
-    if (!fs::dir_exists(fs::path_dir(mount_path))) {
-      processx::run("sudo", args = c("mkdir", fs::path_dir(mount_path)))
-      processx::run(
-        "sudo",
-        args = c("chown", "azureuser", fs::path_dir(mount_path))
-      )
-    }
-    processx::run("sudo", args = c("mkdir", mount_path))
-    processx::run("sudo", args = c("chown", "azureuser", mount_path))
+  if (fs::dir_exists(mount_point) && length(fs::dir_ls(mount_point)) > 0) {
+    message(
+      "Mount point ",
+      mount_point,
+      " already exists but is not an empty directory. Please specify a different mount point."
+    )
   } else {
-    check_mount <- paste("mountpoint -q", mount_path)
-    is_mounted <- processx::run(
-      "mountpoint",
-      args = c("-q", mount_path),
-      error_on_status = FALSE
-    )$status ==
-      0
-  }
-  if (!is_mounted) {
     message("Mounting Azure Blob Storage...")
-    if (!fs::dir_exists(cache_path)) {
-      if (!fs::dir_exists(fs::path_dir(cache_path))) {
-        processx::run("sudo", args = c("mkdir", fs::path_dir(cache_path)))
-        processx::run(
-          "sudo",
-          args = c("chown", "azureuser", fs::path_dir(cache_path))
-        )
-      }
-      processx::run("sudo", args = c("mkdir", cache_path))
-      processx::run("sudo", args = c("chown", "azureuser", cache_path))
-    }
     processx::run(
-      "blobfuse2",
+      "az",
       args = c(
+        "ml",
+        "datastore",
         "mount",
-        mount_path,
-        "--config-file",
-        config_path,
-        "--container-name",
-        container_name,
-        "--tmp-path",
-        cache_path
+        "--mount-point",
+        mount_point,
+        "--mode",
+        "rw_mount",
+        "--path",
+        container_name
       )
     )
     message("Mount successful.")
-  } else {
-    message("Azure Blob Storage is already mounted.")
   }
-  mount_path
+  invisible(mount_point)
 }
 
 #' Set up symlink for Azure storage paths
