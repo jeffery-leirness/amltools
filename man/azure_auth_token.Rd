@@ -22,7 +22,7 @@ ID. Defaults to \code{"common"}.}
 If \code{NULL}, attempts to retrieve from an existing Azure login.}
 
 \item{auth_type}{A character string specifying the authentication type to use
-as a fallback. Passed to \code{\link[AzureRMR:reexports]{AzureRMR::get_azure_token()}}.}
+as a fallback. Passed to \code{\link[AzureRMR:get_azure_token]{AzureRMR::get_azure_token()}}.}
 }
 \value{
 An Azure token object.

@@ -38,22 +38,18 @@ get_azure_key <- function(resource_group, account_name) {
 #' is already mounted, a message is displayed and the function exits early.
 #' Requires that `blobfuse2` and the Azure CLI are installed and authenticated.
 #'
-#' @param mount_path A `fs_path` object or character string specifying the
+#' @param mount_point A `fs_path` object or character string specifying the
 #'   local directory to mount the storage to.
-#' @param cache_path A `fs_path` object or character string specifying the
-#'   local directory blobfuse2 uses as a cache.
-#' @param config_path A `fs_path` object or character string specifying the
-#'   path to the blobfuse2 configuration YAML file.
-#' @param container_name A character string specifying the Azure Storage container
-#'   name.
+#' @param container A character string specifying the Azure Storage container
+#'   name or path.
 #'
 #' @return Called for its side effects; returns invisibly. Prints a message
 #'   indicating whether the mount was successful or already active.
 #'
 #' @export
 mount_blob_storage <- function(
-  mount_point = fs::path("/mnt/tmp/blob_mount", container_name),
-  container_name
+  mount_point = fs::path("/mnt/tmp/blob_mount", container),
+  container
 ) {
   if (fs::dir_exists(mount_point) && length(fs::dir_ls(mount_point)) > 0) {
     message(
@@ -74,7 +70,7 @@ mount_blob_storage <- function(
         "--mode",
         "rw_mount",
         "--path",
-        container_name
+        container
       )
     )
     message("Mount successful.")
