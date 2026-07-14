@@ -3,3 +3,4 @@
 export(get_azure_key)
 export(mount_blob_storage)
 export(set_symlink)
+export(unmount_blob_storage)

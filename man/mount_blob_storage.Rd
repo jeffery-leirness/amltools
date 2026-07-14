@@ -5,26 +5,25 @@
 \title{Mount Azure Blob Storage using blobfuse2}
 \usage{
 mount_blob_storage(
-  mount_point = fs::path("/mnt/tmp/blob_mount", container_name),
-  container_name
+  account_name,
+  container_name,
+  mount_point = fs::path("~/azureml-blobstore", container_name)
 )
 }
 \arguments{
+\item{account_name}{A character string specifying the Azure Storage account
+name.}
+
 \item{container_name}{A character string specifying the Azure Storage container
 name.}
 
-\item{mount_path}{A \code{fs_path} object or character string specifying the
-local directory to mount the storage to.}
-
-\item{cache_path}{A \code{fs_path} object or character string specifying the
-local directory blobfuse2 uses as a cache.}
-
-\item{config_path}{A \code{fs_path} object or character string specifying the
-path to the blobfuse2 configuration YAML file.}
+\item{mount_point}{A \code{fs_path} object or character string specifying the
+local directory to mount the storage to. If not provided, defaults to
+\verb{~/.azureml-blobstore/<container_name>}.}
 }
 \value{
 Called for its side effects; returns invisibly. Prints a message
-indicating whether the mount was successful or already active.
+indicating whether the mount was successful.
 }
 \description{
 Mounts an Azure Blob Storage container to a local directory using

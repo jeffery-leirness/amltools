@@ -38,44 +38,149 @@ get_azure_key <- function(resource_group, account_name) {
 #' is already mounted, a message is displayed and the function exits early.
 #' Requires that `blobfuse2` and the Azure CLI are installed and authenticated.
 #'
+#' @param account_name A character string specifying the Azure Storage account
+#'   name.
+#' @param container_name A character string specifying the Azure Storage container
+#'   name.
 #' @param mount_point A `fs_path` object or character string specifying the
-#'   local directory to mount the storage to.
-#' @param container A character string specifying the Azure Storage container
-#'   name or path.
+#'   local directory to mount the storage to. If not provided, defaults to
+#'   `~/.azureml-blobstore/<container_name>`.
 #'
 #' @return Called for its side effects; returns invisibly. Prints a message
-#'   indicating whether the mount was successful or already active.
+#'   indicating whether the mount was successful.
 #'
 #' @export
 mount_blob_storage <- function(
-  mount_point = fs::path("/mnt/tmp/blob_mount", container),
-  container
+  account_name,
+  container_name,
+  mount_point = fs::path("~/azureml-blobstore", container_name)
 ) {
-  if (fs::dir_exists(mount_point) && length(fs::dir_ls(mount_point)) > 0) {
-    message(
+  mount_path <- fs::path_expand(mount_point)
+
+  check_mount <- processx::run(
+    "mountpoint",
+    args = c("-q", mount_path),
+    error_on_status = FALSE
+  )
+
+  if (check_mount$status == 0) {
+    message("The directory '", mount_path, "' is already mounted.")
+    return(invisible(mount_path))
+  }
+
+  if (fs::dir_exists(mount_path) && length(fs::dir_ls(mount_path)) > 0) {
+    stop(
       "Mount point ",
-      mount_point,
+      mount_path,
       " already exists but is not an empty directory. Please specify a different mount point."
     )
-  } else {
-    message("Mounting Azure Blob Storage...")
-    processx::run(
-      "az",
-      args = c(
-        "ml",
-        "datastore",
-        "mount",
-        "--mount-point",
-        mount_point,
-        "--mode",
-        "rw_mount",
-        "--path",
-        container
-      )
-    )
-    message("Mount successful.")
   }
-  invisible(mount_point)
+
+  old_env <- Sys.getenv(
+    c(
+      "AZURE_STORAGE_AUTH_TYPE",
+      "AZURE_STORAGE_ACCOUNT",
+      "AZURE_STORAGE_ACCOUNT_CONTAINER",
+      "AZURE_CONFIG_DIR"
+    ),
+    names = TRUE,
+    unset = NA
+  )
+  on.exit(
+    {
+      restore <- old_env[!is.na(old_env)]
+      if (length(restore) > 0) {
+        do.call(Sys.setenv, as.list(restore))
+      }
+      Sys.unsetenv(names(old_env[is.na(old_env)]))
+    },
+    add = TRUE
+  )
+
+  Sys.setenv(
+    AZURE_STORAGE_AUTH_TYPE = "azcli",
+    AZURE_STORAGE_ACCOUNT = account_name,
+    AZURE_STORAGE_ACCOUNT_CONTAINER = container_name,
+    AZURE_CONFIG_DIR = fs::path_expand("~/.azure")
+  )
+
+  fs::dir_create(mount_path)
+
+  mount_res <- processx::run(
+    "sudo",
+    args = c(
+      "-E",
+      "blobfuse2",
+      "mount",
+      mount_path,
+      "--streaming",
+      "--allow-other"
+    ),
+    error_on_status = FALSE
+  )
+
+  if (mount_res$status == 0) {
+    message(
+      "Successfully mounted container '",
+      container_name,
+      "' to ",
+      mount_path
+    )
+  } else {
+    warning(
+      "Mount failed with exit code ",
+      mount_res$status,
+      ".\n",
+      "Error output:\n",
+      mount_res$stderr
+    )
+  }
+
+  invisible(mount_path)
+}
+
+
+#' Unmount Azure Blob Storage
+#'
+#' Unmounts a previously mounted Azure Blob Storage container.
+#'
+#' @param mount_point The local directory where the container is mounted.
+#'
+#' @return Invisibly returns `TRUE` if the unmount was successful, otherwise `FALSE`.
+#'
+#' @export
+unmount_blob_storage <- function(mount_point) {
+  mount_path <- fs::path_expand(mount_point)
+
+  check_mount <- processx::run(
+    "mountpoint",
+    args = c("-q", mount_path),
+    error_on_status = FALSE
+  )
+
+  if (check_mount$status != 0) {
+    message("The directory '", mount_path, "' is not currently mounted.")
+    return(invisible(TRUE))
+  }
+
+  unmount_res <- processx::run(
+    "sudo",
+    args = c("umount", mount_path),
+    error_on_status = FALSE
+  )
+
+  if (unmount_res$status == 0) {
+    message("Successfully unmounted '", mount_path, "'")
+  } else {
+    warning(
+      "Unmount failed with exit code ",
+      unmount_res$status,
+      ".\n",
+      "Error output:\n",
+      unmount_res$stderr
+    )
+  }
+  invisible(unmount_res$status == 0)
 }
 
 #' Set up symlink for Azure storage paths
