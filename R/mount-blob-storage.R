@@ -34,9 +34,13 @@ get_azure_key <- function(resource_group, account_name) {
 #' Mount Azure Blob Storage using blobfuse2
 #'
 #' Mounts an Azure Blob Storage container to a local directory using
-#' [blobfuse2](https://github.com/Azure/azure-storage-fuse). If the storage
-#' is already mounted, a message is displayed and the function exits early.
-#' Requires that `blobfuse2` and the Azure CLI are installed and authenticated.
+#' [blobfuse2](https://github.com/Azure/azure-storage-fuse) with deterministic
+#' zero-latency cache timeout configurations. Disabling attribute, entry, and
+#' file page caching forces blobfuse2 to query Azure Storage REST APIs
+#' directly, guaranteeing real-time target status parity across cluster nodes.
+#' If the storage is already mounted, a message is displayed and the function
+#' exits early. Requires that `blobfuse2` and the Azure CLI are installed and
+#' authenticated.
 #'
 #' @param account_name A character string specifying the Azure Storage account
 #'   name.
@@ -45,15 +49,20 @@ get_azure_key <- function(resource_group, account_name) {
 #' @param mount_point A `fs_path` object or character string specifying the
 #'   local directory to mount the storage to. If not provided, defaults to
 #'   `~/.azureml-blobstore/<container_name>`.
+#' @param attr_timeout Cache timeout in seconds for file attributes and directory entries. Defaults to `0L`.
+#' @param file_cache_timeout Cache timeout in seconds for local file contents. Defaults to `0L`.
+#' @param disable_kernel_cache Logical. Whether to disable Linux kernel page caching. Defaults to `TRUE`.
 #'
-#' @return Called for its side effects; returns invisibly. Prints a message
-#'   indicating whether the mount was successful.
+#' @return Called for its side effects; returns invisibly the expanded `mount_path`.
 #'
 #' @export
 mount_blob_storage <- function(
   account_name,
   container_name,
-  mount_point = fs::path("~/azureml-blobstore", container_name)
+  mount_point = fs::path("~/azureml-blobstore", container_name),
+  attr_timeout = 0L,
+  file_cache_timeout = 0L,
+  disable_kernel_cache = TRUE
 ) {
   mount_path <- fs::path_expand(mount_point)
 
@@ -106,18 +115,24 @@ mount_blob_storage <- function(
 
   fs::dir_create(mount_path)
 
-  mount_res <- processx::run(
-    "sudo",
-    args = c(
-      "-E",
-      "blobfuse2",
-      "mount",
-      mount_path,
-      "--streaming",
-      "--allow-other"
-    ),
-    error_on_status = FALSE
+  fuse_args <- c(
+    "-E",
+    "blobfuse2",
+    "mount",
+    mount_path,
+    "--streaming",
+    "--allow-other",
+    paste0("--attr-cache-timeout=", attr_timeout),
+    paste0("--attr-timeout=", attr_timeout),
+    paste0("--entry-timeout=", attr_timeout),
+    paste0("--file-cache-timeout=", file_cache_timeout)
   )
+
+  if (isTRUE(disable_kernel_cache)) {
+    fuse_args <- c(fuse_args, "--disable-kernel-cache")
+  }
+
+  mount_res <- processx::run("sudo", args = fuse_args, error_on_status = FALSE)
 
   if (mount_res$status == 0) {
     message(

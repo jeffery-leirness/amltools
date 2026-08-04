@@ -7,7 +7,10 @@
 mount_blob_storage(
   account_name,
   container_name,
-  mount_point = fs::path("~/azureml-blobstore", container_name)
+  mount_point = fs::path("~/azureml-blobstore", container_name),
+  attr_timeout = 0L,
+  file_cache_timeout = 0L,
+  disable_kernel_cache = TRUE
 )
 }
 \arguments{
@@ -20,14 +23,23 @@ name.}
 \item{mount_point}{A \code{fs_path} object or character string specifying the
 local directory to mount the storage to. If not provided, defaults to
 \verb{~/.azureml-blobstore/<container_name>}.}
+
+\item{attr_timeout}{Cache timeout in seconds for file attributes and directory entries. Defaults to \code{0L}.}
+
+\item{file_cache_timeout}{Cache timeout in seconds for local file contents. Defaults to \code{0L}.}
+
+\item{disable_kernel_cache}{Logical. Whether to disable Linux kernel page caching. Defaults to \code{TRUE}.}
 }
 \value{
-Called for its side effects; returns invisibly. Prints a message
-indicating whether the mount was successful.
+Called for its side effects; returns invisibly the expanded \code{mount_path}.
 }
 \description{
 Mounts an Azure Blob Storage container to a local directory using
-\href{https://github.com/Azure/azure-storage-fuse}{blobfuse2}. If the storage
-is already mounted, a message is displayed and the function exits early.
-Requires that \code{blobfuse2} and the Azure CLI are installed and authenticated.
+\href{https://github.com/Azure/azure-storage-fuse}{blobfuse2} with deterministic
+zero-latency cache timeout configurations. Disabling attribute, entry, and
+file page caching forces blobfuse2 to query Azure Storage REST APIs
+directly, guaranteeing real-time target status parity across cluster nodes.
+If the storage is already mounted, a message is displayed and the function
+exits early. Requires that \code{blobfuse2} and the Azure CLI are installed and
+authenticated.
 }
