@@ -11,7 +11,7 @@ Authors@R:
     )
 Description: Automate project setup tasks for the Azure Machine Learning Studio 
     platform.
-License: MIT + file LICENSE
+License: file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 
